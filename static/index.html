@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <link rel="stylesheet" href="style.css" />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/alertify.js/0.3.11/alertify.core.css"
+            integrity="sha512-eZih0rne5vAjEWet1syNsU3LTj1TygGLuLq304xv+JZeaIqi1E1OCbYFD0YPMqhgqFYoOH28QJzJIj+wkVWm+A=="
+            crossorigin="anonymous"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/alertify.js/0.3.11/alertify.bootstrap.min.css"
+            integrity="sha512-l4+1qLmPirplq1Bycp+BH0zaQGbdQQiga5r7rzJcri7/KcFL87MShw34pC+dr1Jm7K7KWQnqiaTFy/5Xq4LkWg=="
+            crossorigin="anonymous"
+        />
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/alertify.js/0.3.11/alertify.min.js"
+            integrity="sha512-2R8JJ9GapQ1VCvcazWIP4F7rOrMs6mzorqtZlXpvakAU0O/iw4n90CFrmG9+BwI//xxtnHxb5rbpkIF2s6z39w=="
+            crossorigin="anonymous"
+        ></script>
+    </head>
+    <body>
+        <header>
+            <h1>RoboAuth</h1>
+            <nav>
+                <a href="/login">Login</a>
+                <a href="/register">Register</a>
+                <button id="logout">LogOut</button>
+            </nav>
+        </header>
+        <h3>auth info</h3>
+        <main></main>
+        <script>
+            fetch("/me")
+                .then((res) => res.json())
+                .then(
+                    (res) =>
+                        (document.querySelector("main").innerHTML =
+                            JSON.stringify(res))
+                );
+
+            document.querySelector("#logout").addEventListener("click", () => {
+                document.cookie = `x-access-token=; expires=${new Date(
+                    Date.now() - 60
+                )}; path=/;`;
+                location.reload();
+            });
+
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                let token = "";
+                if (parts.length === 2) token = parts.pop().split(";").shift();
+                if (token) {
+                    document.querySelectorAll("nav a").forEach((a) => {
+                        a.style.display = "none";
+                    })
+                    document.querySelector("#logout").style.display = "block";
+                } else {
+                    document.querySelectorAll("nav a").forEach((a) => {
+                        a.style.display = "block";
+                    })
+                    document.querySelector("#logout").style.display = "none";
+                }
+            }
+            getCookie("x-access-token");
+        </script>
+    </body>
+</html>

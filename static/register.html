@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/alertify.js/0.3.11/alertify.core.css' integrity='sha512-eZih0rne5vAjEWet1syNsU3LTj1TygGLuLq304xv+JZeaIqi1E1OCbYFD0YPMqhgqFYoOH28QJzJIj+wkVWm+A==' crossorigin='anonymous'/>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/alertify.js/0.3.11/alertify.bootstrap.min.css' integrity='sha512-l4+1qLmPirplq1Bycp+BH0zaQGbdQQiga5r7rzJcri7/KcFL87MShw34pC+dr1Jm7K7KWQnqiaTFy/5Xq4LkWg==' crossorigin='anonymous'/>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/alertify.js/0.3.11/alertify.min.js' integrity='sha512-2R8JJ9GapQ1VCvcazWIP4F7rOrMs6mzorqtZlXpvakAU0O/iw4n90CFrmG9+BwI//xxtnHxb5rbpkIF2s6z39w==' crossorigin='anonymous'></script>
+</head>
+<body>
+    <form method="post">
+        <h1>Register</h1>
+        <label for="username">Username</label>
+        <input type="text" name="username" id="username">
+        <label for="password">Password</label>
+        <input type="password" name="password" id="password">
+        <label for="confirmPassword" name="confirmPassword">Confirm Password</label>
+        <input type="password" name="confirmPassword" id="confirmPassword">
+        <input type="submit" value="Login">
+    </form>
+    <script>
+        const form = document.querySelector("form");
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const username = document.querySelector("#username").value;
+            const password = document.querySelector("#password").value;
+            const confirmPassword = document.querySelector("#confirmPassword").value;
+            if(!username || !password || !confirmPassword) {
+                alertify.error("All fields are required");
+                console.log(username, password, confirmPassword);
+                return;
+            }
+            if(password.length < 6) {
+                alertify.error("Password must be at least 6 characters long");
+                return;
+            }
+            if(username.length < 5) {
+                alertify.error("Username must be at least 5 characters long");
+            }
+            if (password !== confirmPassword) {
+                alertify.error("Passwords do not match");
+                return;
+            }
+            fetch("/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    username,
+                    password,
+                }),
+            }).then((res) => res.json())
+                .then((res) => {
+                    if (res.auth) {
+                        document.cookie = `x-access-token=${res.token}; expires=${new Date(Date.now() + 60)}; path=/;`;
+                        window.location.href = "/";
+                    } else {
+                        alertify.error(res.message);
+                    }
+                }).catch((err) => {
+                    alertify.error(err);
+                });
+        });
+    </script>
+</body>
+</html>
